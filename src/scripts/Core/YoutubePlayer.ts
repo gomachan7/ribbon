@@ -92,11 +92,12 @@ export class YoutubePlayer {
     if (!this.isAvailable) {
       return;
     }
-    this.player.destroy();
-    JSS.removeStyleSheet(this.playerCSS);
 
+    this.player.destroy();
     this.player = null;
+    JSS.removeStyleSheet(this.playerCSS);
     this.playerCSS = null;
+
     if (this.playerElm) {
       this.playerElm.remove();
       this.playerElm = null;
