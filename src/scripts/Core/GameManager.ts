@@ -1,7 +1,7 @@
 import { EmptyScene } from 'Scenes/EmptyScene';
 import { UISettings } from 'Constants/UISettings';
-import { fromEvent, merge, Observable } from 'rxjs';
-import { share, map } from 'rxjs/operators';
+import { fromEvent, merge, Observable, of } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 
 export class GameManager {
   private static instance: GameManager;
@@ -13,9 +13,10 @@ export class GameManager {
 
     this.onResizeEvent = merge(
       fromEvent(window, 'resize'),
-      fromEvent(window, 'orientationchange')
+      fromEvent(window, 'orientationchange'),
+      of(true)
     ).pipe(
-      share(),
+      shareReplay(1),
       map(v => {
         return { width: this.canvasWidth, height: this.canvasHeight };
       })
