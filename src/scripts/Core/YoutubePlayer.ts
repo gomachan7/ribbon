@@ -1,5 +1,6 @@
-import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { take, filter, mergeMap } from 'rxjs/operators';
+import JSS from 'jss';
 
 // Dynamic loading YoutubeAPI
 const tag = document.createElement('script');
@@ -20,11 +21,135 @@ Window.prototype.onYouTubeIframeAPIReady = () => {
 };
 
 const youtubeAPIIPrepared = new BehaviorSubject<Boolean>(false);
+const PlayerIDPrefix = 'youtube-player';
 
 export class YoutubePlayer {
-  constructor() {}
+  private uuid: string;
+  private player: YT.Player;
+  private playerCSS: any;
+  private playerElm: HTMLDivElement;
 
-  get onAPIReady() {
-    return youtubeAPIIPrepared.pipe(take(1));
+  constructor() {
+    this.uuid = Phaser.Utils.String.UUID();
+  }
+
+  get isAvailable(): boolean {
+    return this.player != null;
+  }
+
+  createPlayer(videoId: string): Observable<YoutubePlayer> {
+    const createPlayerObservable = Observable.create(observer => {
+      if (this.isAvailable) {
+        return observer.error('Player is already created');
+      }
+
+      // Prepare DOM for Youtube Player
+      const playerId = PlayerIDPrefix + this.uuid;
+      this.createDOM(playerId);
+
+      // Replace target dom with iframe contains a video
+      new YT.Player(playerId, {
+        height: '0',
+        width: '0',
+        videoId: videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          iv_load_policy: 3,
+          loop: 0,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 1,
+          playsinline: 1
+        },
+        events: {
+          onReady: evt => {
+            this.onPlayerReady(evt);
+            observer.next(this);
+          },
+          onStateChange: evt => {
+            this.onPlayerStateChange(evt);
+          },
+          onError: evt => {
+            this.onPlyerError(evt);
+          }
+        }
+      });
+    }).pipe(take(1));
+
+    return this.onAPIReady().pipe(mergeMap(_ => createPlayerObservable));
+  }
+
+  deletePlayer() {
+    if (!this.isAvailable) {
+      return;
+    }
+    this.player.destroy();
+    JSS.removeStyleSheet(this.playerCSS);
+
+    this.player = null;
+    this.playerCSS = null;
+    if (this.playerElm) {
+      this.playerElm.remove();
+      this.playerElm = null;
+    }
+  }
+
+  private createDOM(playerId: string) {
+    if (this.playerElm) {
+      return;
+    }
+    const styles = {
+      base: {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        margin: 'auto',
+        position: 'absolute',
+        opacity: 0
+      },
+      player: {
+        extend: 'base',
+        'z-index': -1,
+        'background-color': 'rgba(0,0,0,0.2)'
+      }
+    };
+
+    this.playerCSS = JSS.createStyleSheet(styles as any).attach();
+
+    this.playerElm = document.createElement('div');
+    this.playerElm.className = this.playerCSS.classes.player;
+    this.playerElm.id = playerId;
+
+    const body = document.querySelector('body');
+    if (body) {
+      body.appendChild(this.playerElm);
+    }
+  }
+
+  private onAPIReady() {
+    return youtubeAPIIPrepared.pipe(
+      filter((isPrepared: boolean) => isPrepared),
+      take(1)
+    );
+  }
+
+  private onPlayerReady(event: YT.PlayerEvent) {
+    console.log('[YoutubeAPI] onPlayerReady');
+
+    if (this.isAvailable) {
+      return;
+    }
+    this.player = event.target;
+  }
+
+  private onPlayerStateChange(event: YT.OnStateChangeEvent) {
+    console.log('[YoutubeAPI] onPlayerStateChange');
+  }
+
+  private onPlyerError(event: YT.OnErrorEvent) {
+    console.log('[YoutubeAPI] onPlyerError');
   }
 }
