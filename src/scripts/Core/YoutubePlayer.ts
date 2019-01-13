@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, Subject } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
 import JSS from 'jss';
 import { GameManager } from './GameManager';
@@ -30,6 +30,7 @@ export class YoutubePlayer {
   private playerCSS: any;
   private playerElm: HTMLDivElement;
   private onResizeSubscription: Subscription;
+  private subject: Subject<YT.PlayerState> = new Subject();
 
   constructor() {
     this.uuid = Phaser.Utils.String.UUID();
@@ -37,6 +38,10 @@ export class YoutubePlayer {
 
   get isAvailable(): boolean {
     return this.player != null;
+  }
+
+  get onStatusChanged() {
+    return this.subject;
   }
 
   createPlayer(videoId: string): Observable<YoutubePlayer> {
@@ -206,10 +211,48 @@ export class YoutubePlayer {
   }
 
   private onPlayerStateChange(event: YT.OnStateChangeEvent) {
-    console.log('[YoutubeAPI] onPlayerStateChange');
+    const statusString = ((state: YT.PlayerState) => {
+      if (state == YT.PlayerState.ENDED) {
+        return 'ENDED';
+      } else if (state == YT.PlayerState.PLAYING) {
+        return 'PLAYING';
+      } else if (state == YT.PlayerState.PAUSED) {
+        return 'PAUSED';
+      } else if (state == YT.PlayerState.BUFFERING) {
+        return 'BUFFERING';
+      } else if (state == YT.PlayerState.CUED) {
+        return 'CUED';
+      } else if (state == YT.PlayerState.UNSTARTED) {
+        return 'UNSTARTED';
+      } else {
+        return 'UNKNOWN';
+      }
+    })(event.data);
+
+    console.log('[YoutubeAPI] onPlayerStateChange' + ' -> ' + statusString);
+
+    this.subject.next(event.data);
   }
 
   private onPlyerError(event: YT.OnErrorEvent) {
     console.log('[YoutubeAPI] onPlyerError');
+
+    const errorString = ((errorNo: number) => {
+      if (errorNo === 2) {
+        return '動画IDのフォーマットが不正です';
+      } else if (errorNo === 5) {
+        return 'HTMLのプレイヤーで再生できない動画の可能性があります';
+      } else if (errorNo === 100) {
+        return '読み込もうとした動画が削除されたか非公開にされた可能性があります';
+      } else if (errorNo === 101 || errorNo === 150) {
+        return '動画が存在しない可能性があります';
+      } else {
+        return '不明なエラーです';
+      }
+    })(event.data);
+
+    alert('エラー: ' + errorString);
+
+    this.subject.error(event.data);
   }
 }
