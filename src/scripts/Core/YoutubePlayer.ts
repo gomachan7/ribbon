@@ -96,6 +96,57 @@ export class YoutubePlayer {
     }
   }
 
+  cueVideoById(id: string) {
+    if (this.isAvailable) {
+      this.player.cueVideoById(id);
+    }
+  }
+
+  playVideo() {
+    if (this.isAvailable) {
+      this.player.playVideo();
+    }
+  }
+
+  pauseVideo() {
+    if (this.isAvailable) {
+      this.player.pauseVideo();
+    }
+  }
+
+  setVideoSize(width: number, height: number) {
+    if (this.isAvailable) {
+      this.player.setSize(width, height);
+    }
+  }
+
+  seekTo(seconds: number, allowSeekAhead: boolean) {
+    if (this.isAvailable) {
+      return this.player.seekTo(seconds, allowSeekAhead);
+    }
+  }
+
+  getCurrentTime(): number {
+    if (this.isAvailable) {
+      return this.player.getCurrentTime();
+    }
+    return 0.0;
+  }
+
+  getDuration(): number {
+    if (this.isAvailable) {
+      return this.player.getDuration();
+    }
+    return 0.0;
+  }
+
+  getPlayerState(): YT.PlayerState {
+    if (this.isAvailable) {
+      return this.player.getPlayerState();
+    }
+    return YT.PlayerState.UNSTARTED;
+  }
+
   private createDOM(playerId: string) {
     if (this.playerElm) {
       return;
