@@ -1,7 +1,7 @@
 import JSS from 'jss';
 import { BehaviorSubject, Observable, Subscription, Subject } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
-import { GameManager } from './GameManager';
+import { GameManager } from '../GameManager';
 
 // Dynamic loading YoutubeAPI
 const tag = document.createElement('script');
