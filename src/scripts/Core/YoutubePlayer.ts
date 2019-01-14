@@ -1,6 +1,6 @@
+import JSS from 'jss';
 import { BehaviorSubject, Observable, Subscription, Subject } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
-import JSS from 'jss';
 import { GameManager } from './GameManager';
 
 // Dynamic loading YoutubeAPI
@@ -248,7 +248,6 @@ export class YoutubePlayer {
   }
 
   private onClickedPlayerActivator() {
-    console.log('sdfasdf');
     if (this.isAvailable) {
       // Impersonate the user's execution:
       // play and pause in the context of tapped transparent play button
