@@ -50,6 +50,31 @@ exports.webpackConfig = {
         query: {
           pretty: true
         }
+      },
+      {
+        test: /\.css$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 2,
+              modules: true,
+              camelCase: true,
+              localIdentName: '[name]__[local]___[hash:base64:5]',
+              sourceMap: true
+            }
+          },
+          {
+            loader: 'typed-css-modules-loader',
+            options: {
+              camelCase: true
+            }
+          }
+        ]
       }
     ]
   },
