@@ -23,14 +23,17 @@ Window.prototype.onYouTubeIframeAPIReady = () => {
 
 const youtubeAPIIPrepared = new BehaviorSubject<Boolean>(false);
 const PlayerIDPrefix = 'youtube-player';
+const PlayerActivatorIDPrefix = 'youtube-player-activator';
 
 export class YoutubePlayer {
   private uuid: string;
   private player: YT.Player;
   private playerCSS: any;
   private playerElm: HTMLDivElement;
+  private playerActivatorElm: HTMLButtonElement;
   private onResizeSubscription: Subscription;
   private subject: Subject<YT.PlayerState> = new Subject();
+  private requestAnimationID: number;
 
   constructor() {
     this.uuid = Phaser.Utils.String.UUID();
@@ -52,7 +55,9 @@ export class YoutubePlayer {
 
       // Prepare DOM for Youtube Player
       const playerId = PlayerIDPrefix + this.uuid;
-      this.createDOM(playerId);
+      const playerActivatorId = PlayerActivatorIDPrefix + this.uuid;
+      this.createDOM(playerId, playerActivatorId);
+      this.startFadeAnimation();
 
       // Replace target dom with iframe contains a video
       new YT.Player(playerId, {
@@ -102,8 +107,14 @@ export class YoutubePlayer {
       this.playerElm.remove();
       this.playerElm = null;
     }
+    if (this.playerActivatorElm) {
+      this.playerActivatorElm.remove();
+      this.playerActivatorElm = null;
+    }
     this.onResizeSubscription.unsubscribe();
     this.onResizeSubscription = null;
+
+    this.stopFadeAnimation();
   }
 
   cueVideoById(id: string) {
@@ -127,6 +138,10 @@ export class YoutubePlayer {
   setVideoSize(width: number, height: number) {
     if (this.isAvailable) {
       this.player.setSize(width, height);
+    }
+    if (this.playerActivatorElm) {
+      this.playerActivatorElm.style.width = width + 'px';
+      this.playerActivatorElm.style.height = height + 'px';
     }
   }
 
@@ -157,7 +172,36 @@ export class YoutubePlayer {
     return YT.PlayerState.UNSTARTED;
   }
 
-  private createDOM(playerId: string) {
+  private startFadeAnimation() {
+    this.requestAnimationID = window.requestAnimationFrame(this.fadeAnimationLoop.bind(this));
+  }
+
+  private stopFadeAnimation() {
+    window.cancelAnimationFrame(this.requestAnimationID);
+  }
+
+  private fadeAnimationLoop() {
+    if (this.isAvailable) {
+      const safeOffsetMs = 0.5;
+      const fadeDuration = 1.0;
+      // FadeIn around start point of movie duration.
+      const fadeInOpacity = Math.min(
+        Math.max((this.getCurrentTime() - safeOffsetMs) / fadeDuration, 0.0),
+        1.0
+      );
+      // FadeOut around end point of movie duration
+      const fadeOutOpacity = Math.min(
+        Math.max((this.getDuration() - safeOffsetMs - this.getCurrentTime()) / fadeDuration, 0.0),
+        1.0
+      );
+      const opacityAtCurrentTime = Math.min(fadeInOpacity, fadeOutOpacity);
+
+      this.player.getIframe().style.opacity = opacityAtCurrentTime.toString();
+    }
+    this.requestAnimationID = window.requestAnimationFrame(this.fadeAnimationLoop.bind(this));
+  }
+
+  private createDOM(playerId: string, playerActivatorId: string) {
     if (this.playerElm) {
       return;
     }
@@ -175,6 +219,10 @@ export class YoutubePlayer {
         extend: 'base',
         'z-index': -1,
         'background-color': 'rgba(0,0,0,0.2)'
+      },
+      playerActivator: {
+        extend: 'base',
+        'z-index': 10
       }
     };
 
@@ -184,9 +232,31 @@ export class YoutubePlayer {
     this.playerElm.className = this.playerCSS.classes.player;
     this.playerElm.id = playerId;
 
+    // XXX: On mobile HTML5 video api dont allow to play its by called api programmatically.
+    // Because user's voluntary operation to play(tap play button) is required at least once,
+    // overlay transparent button to be tapped by user unconsciously, and play and pause in a very short time
+    this.playerActivatorElm = document.createElement('button');
+    this.playerActivatorElm.className = this.playerCSS.classes.playerActivator;
+    this.playerActivatorElm.id = playerActivatorId;
+    this.playerActivatorElm.onclick = () => this.onClickedPlayerActivator();
+
     const body = document.querySelector('body');
     if (body) {
       body.appendChild(this.playerElm);
+      body.appendChild(this.playerActivatorElm);
+    }
+  }
+
+  private onClickedPlayerActivator() {
+    console.log('sdfasdf');
+    if (this.isAvailable) {
+      // Impersonate the user's execution:
+      // play and pause in the context of tapped transparent play button
+      this.playVideo();
+      this.pauseVideo();
+
+      // This button will be unnecessary so erase it
+      this.playerActivatorElm.style.display = 'none';
     }
   }
 
