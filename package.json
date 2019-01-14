@@ -9,7 +9,7 @@
     "publish": "npm run release && rm -rf dist && cp -r build dist",
     "gen-assets-def": "node tools/gen-assets-def.js",
     "format": "prettier src/scripts/**/*.ts --write",
-    "gen-css-typedef": "rm -rf src/scripts/**/*.css.d.ts && tcm -c -p src/scripts/**/*.css",
+    "gen-css-typedef": "find ./src/scripts -type f -name '*.css.d.ts' -delete && tcm ./src/scripts -c",
     "prestart": "npm run gen-css-typedef",
     "predebug": "npm run gen-css-typedef",
     "prerelease": "npm run gen-css-typedef"
