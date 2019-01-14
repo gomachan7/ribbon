@@ -1390,6 +1390,10 @@ cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
 
+dat.gui@^0.7.5:
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/dat.gui/-/dat.gui-0.7.5.tgz#ab155825b0db88729c025697ef60c97fb87bef85"
+
 date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
