@@ -25,7 +25,7 @@
     "imagemin-webpack-plugin": "^2.3.0",
     "jss": "^9.8.7",
     "jss-preset-default": "^10.0.0-alpha.7",
-    "phaser": "photonstorm/phaser#d7860e6c8f2886a76932b0eeedbf99eff2456e16",
+    "phaser": "gomachan7/phaser#be562abd83f5310215dd283a006fc83d2597b18a",
     "prettier": "^1.15.3",
     "pug": "^2.0.3",
     "pug-loader": "^2.4.0",
