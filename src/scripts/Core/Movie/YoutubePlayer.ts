@@ -1,4 +1,4 @@
-import JSS from 'jss';
+import * as css from 'Core/Movie/YoutubePlayer.css';
 import { BehaviorSubject, Observable, Subscription, Subject } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
 import { GameManager } from '../GameManager';
@@ -28,7 +28,6 @@ const PlayerActivatorIDPrefix = 'youtube-player-activator';
 export class YoutubePlayer {
   private uuid: string;
   private player: YT.Player;
-  private playerCSS: any;
   private playerElm: HTMLDivElement;
   private playerActivatorElm: HTMLButtonElement;
   private onResizeSubscription: Subscription;
@@ -100,8 +99,6 @@ export class YoutubePlayer {
 
     this.player.destroy();
     this.player = null;
-    JSS.removeStyleSheet(this.playerCSS);
-    this.playerCSS = null;
 
     if (this.playerElm) {
       this.playerElm.remove();
@@ -205,38 +202,16 @@ export class YoutubePlayer {
     if (this.playerElm) {
       return;
     }
-    const styles = {
-      base: {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        margin: 'auto',
-        position: 'absolute',
-        opacity: 0
-      },
-      player: {
-        extend: 'base',
-        'z-index': -1,
-        'background-color': 'rgba(0,0,0,0.2)'
-      },
-      playerActivator: {
-        extend: 'base',
-        'z-index': 10
-      }
-    };
-
-    this.playerCSS = JSS.createStyleSheet(styles as any).attach();
 
     this.playerElm = document.createElement('div');
-    this.playerElm.className = this.playerCSS.classes.player;
+    this.playerElm.className = css.player;
     this.playerElm.id = playerId;
 
     // XXX: On mobile HTML5 video api dont allow to play its by called api programmatically.
     // Because user's voluntary operation to play(tap play button) is required at least once,
     // overlay transparent button to be tapped by user unconsciously, and play and pause in a very short time
     this.playerActivatorElm = document.createElement('button');
-    this.playerActivatorElm.className = this.playerCSS.classes.playerActivator;
+    this.playerActivatorElm.className = css.playerActivator;
     this.playerActivatorElm.id = playerActivatorId;
     this.playerActivatorElm.onclick = () => this.onClickedPlayerActivator();
 
