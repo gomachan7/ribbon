@@ -3,11 +3,13 @@ import { DebugPlaygroundScene } from 'Scenes/Debug/DebugPlaygroundScene';
 import { UISettings } from 'Constants/UISettings';
 import { fromEvent, merge, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+import { DebugWindow } from 'Debug/DebugWindow';
 
 export class GameManager {
   private static instance: GameManager;
   private game: Phaser.Game;
   private onResizeEvent: Observable<{ width; height }>;
+  private debugWindow: DebugWindow;
 
   private constructor() {
     this.initializeGame();
@@ -72,6 +74,10 @@ export class GameManager {
     };
 
     this.game = new Phaser.Game(config);
+
+    if (DEBUG) {
+      this.debugWindow = new DebugWindow(this.game);
+    }
 
     // Fix canvas size on a wide screen
     this.game.canvas.style.maxWidth = UISettings.width + 'px';
