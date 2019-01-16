@@ -1,5 +1,5 @@
 import * as css from 'Core/Movie/YoutubePlayer.css';
-import { BehaviorSubject, Observable, Subscription, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, Subject, of } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
 import { GameManager } from '../GameManager';
 
@@ -47,59 +47,56 @@ export class YoutubePlayer {
   }
 
   createPlayer(videoId: string): Observable<YoutubePlayer> {
-    const createPlayerObservable = Observable.create(observer => {
-      if (this.isAvailable) {
-        return observer.error('Player is already created');
-      }
+    if (this.isAvailable) {
+      return of(this);
+    }
 
-      // Prepare DOM for Youtube Player
-      const playerId = PlayerIDPrefix + this.uuid;
-      const playerActivatorId = PlayerActivatorIDPrefix + this.uuid;
-      this.createDOM(playerId, playerActivatorId);
-      this.startFadeAnimation();
+    // Prepare DOM for Youtube Player
+    const playerId = PlayerIDPrefix + this.uuid;
+    const playerActivatorId = PlayerActivatorIDPrefix + this.uuid;
+    this.createDOM(playerId, playerActivatorId);
+    this.startFadeAnimation();
 
-      // Replace target dom with iframe contains a video
-      new YT.Player(playerId, {
-        height: '0',
-        width: '0',
-        videoId: videoId,
-        playerVars: {
-          autoplay: 0,
-          controls: 0,
-          disablekb: 1,
-          iv_load_policy: 3,
-          loop: 0,
-          modestbranding: 1,
-          rel: 0,
-          showinfo: 1,
-          playsinline: 1
+    const subject = new Subject<YoutubePlayer>();
+
+    // Replace target dom with iframe contains a video
+    new YT.Player(playerId, {
+      height: '0',
+      width: '0',
+      videoId: videoId,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        iv_load_policy: 3,
+        loop: 0,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: evt => {
+          this.onPlayerReady(evt);
+          subject.next(this);
         },
-        events: {
-          onReady: evt => {
-            this.onPlayerReady(evt);
-            observer.next(this);
-          },
-          onStateChange: evt => {
-            this.onPlayerStateChange(evt);
-          },
-          onError: evt => {
-            this.onPlyerError(evt);
-          }
+        onStateChange: evt => {
+          this.onPlayerStateChange(evt);
+        },
+        onError: evt => {
+          this.onPlyerError(evt);
         }
-      });
-    }).pipe(take(1));
+      }
+    });
 
-    return this.onAPIReady().pipe(mergeMap(_ => createPlayerObservable));
+    return this.onAPIReady().pipe(mergeMap(_ => subject.pipe(take(1))));
   }
 
   deletePlayer() {
-    if (!this.isAvailable) {
-      return;
+    if (this.player) {
+      this.player.destroy();
+      this.player = null;
     }
-
-    this.player.destroy();
-    this.player = null;
-
     if (this.playerElm) {
       this.playerElm.remove();
       this.playerElm = null;
@@ -108,9 +105,10 @@ export class YoutubePlayer {
       this.playerActivatorElm.remove();
       this.playerActivatorElm = null;
     }
-    this.onResizeSubscription.unsubscribe();
-    this.onResizeSubscription = null;
-
+    if (this.onResizeSubscription) {
+      this.onResizeSubscription.unsubscribe();
+      this.onResizeSubscription = null;
+    }
     this.stopFadeAnimation();
   }
 
