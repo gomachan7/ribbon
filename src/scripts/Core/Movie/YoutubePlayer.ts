@@ -2,6 +2,7 @@ import * as css from 'Core/Movie/YoutubePlayer.css';
 import { BehaviorSubject, Observable, Subscription, Subject, of } from 'rxjs';
 import { take, filter, mergeMap } from 'rxjs/operators';
 import { GameManager } from '../GameManager';
+import { YoutubePlayerDebug } from './YoutubePlayerDebug';
 
 // Dynamic loading YoutubeAPI
 const tag = document.createElement('script');
@@ -33,6 +34,8 @@ export class YoutubePlayer {
   private onResizeSubscription: Subscription;
   private subject: Subject<YT.PlayerState> = new Subject();
   private requestAnimationID: number;
+
+  private debug: YoutubePlayerDebug;
 
   constructor() {
     this.uuid = Phaser.Utils.String.UUID();
@@ -108,6 +111,10 @@ export class YoutubePlayer {
     if (this.onResizeSubscription) {
       this.onResizeSubscription.unsubscribe();
       this.onResizeSubscription = null;
+    }
+    if (this.debug) {
+      this.debug.terminate();
+      this.debug = null;
     }
     this.stopFadeAnimation();
   }
@@ -246,6 +253,10 @@ export class YoutubePlayer {
       return;
     }
     this.player = event.target;
+
+    if (DEBUG) {
+      this.debug = new YoutubePlayerDebug(this.player);
+    }
 
     // Fit iframe for video to current canvas size(drawable space)
     this.onResizeSubscription = GameManager.shared.onResize.subscribe(size => {
