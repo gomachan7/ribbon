@@ -1,4 +1,5 @@
-import { EmptyScene } from 'Scenes/EmptyScene';
+import { DebugYoutubeScene } from 'Scenes/Debug/DebugYoutubeScene';
+import { DebugPlaygroundScene } from 'Scenes/Debug/DebugPlaygroundScene';
 import { UISettings } from 'Constants/UISettings';
 import { fromEvent, merge, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -63,7 +64,7 @@ export class GameManager {
       type: Phaser.AUTO,
       width: UISettings.width,
       height: UISettings.height,
-      scene: [EmptyScene],
+      scene: [DebugPlaygroundScene, DebugYoutubeScene],
       scaleMode: Phaser.DOM.CONTAIN,
       resolution: window.devicePixelRatio,
       parent: 'game-container',
