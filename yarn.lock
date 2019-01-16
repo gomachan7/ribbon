@@ -27,6 +27,10 @@
   dependencies:
     "@types/babel-types" "*"
 
+"@types/dat.gui@^0.7.2":
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/@types/dat.gui/-/dat.gui-0.7.2.tgz#f6964d39504e97533774954e3dcf7a9f669196e8"
+
 "@types/q@^1.5.1":
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.1.tgz#48fd98c1561fe718b61733daed46ff115b496e18"

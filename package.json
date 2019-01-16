@@ -16,6 +16,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@types/dat.gui": "^0.7.2",
     "@types/youtube": "^0.0.35",
     "clean-webpack-plugin": "^1.0.0",
     "copy-webpack-plugin": "^4.6.0",
