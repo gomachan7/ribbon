@@ -14,7 +14,12 @@ export class DebugWindow {
     this.datGUI = new dat.GUI();
     const basicFolder = this.datGUI.addFolder('Basic');
     basicFolder
-      .add(this, 'sceneName', ['DebugPlaygroundScene', 'DebugYoutubeScene'])
+      .add(this, 'sceneName', [
+        'DebugPlaygroundScene',
+        'DebugYoutubeScene',
+        'DebugTransition1Scene',
+        'DebugTransition2Scene'
+      ])
       .onFinishChange(v => {
         this.startScene(v);
       });
