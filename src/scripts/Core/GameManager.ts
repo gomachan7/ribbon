@@ -3,6 +3,7 @@ import { DebugPlaygroundScene } from 'Scenes/Debug/DebugPlaygroundScene';
 import { DebugTransition1Scene } from 'Scenes/Debug/DebugTransition1Scene';
 import { DebugTransition2Scene } from 'Scenes/Debug/DebugTransition2Scene';
 import { KokoTransitionScene } from 'Core/Transition/KokoTransitionScene';
+import { FriendsTransitionScene } from 'Core/Transition/FriendsTransitionScene';
 import { UISettings } from 'Constants/UISettings';
 import { fromEvent, merge, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -74,7 +75,8 @@ export class GameManager {
         DebugTransition1Scene,
         DebugTransition2Scene,
         DebugYoutubeScene,
-        KokoTransitionScene
+        KokoTransitionScene,
+        FriendsTransitionScene
       ],
       scaleMode: Phaser.DOM.CONTAIN,
       resolution: window.devicePixelRatio,

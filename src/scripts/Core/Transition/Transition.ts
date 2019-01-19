@@ -1,7 +1,8 @@
 const DurationMinMs = 300;
 
 export enum TransitionType {
-  Koko = 'KokoTransitionScene'
+  Koko = 'KokoTransitionScene',
+  Friends = 'FriendsTransitionScene'
 }
 
 export interface TransitionSceneParam {
