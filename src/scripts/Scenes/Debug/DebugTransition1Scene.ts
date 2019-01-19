@@ -14,7 +14,7 @@ export class DebugTransition1Scene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#90caf9');
 
     this.input.on('pointerdown', _ => {
-      Transition.to(this, 'DebugTransition2Scene', TransitionType.Koko, 800);
+      Transition.to(this, 'DebugTransition2Scene', TransitionType.Friends, 800);
     });
   }
 
