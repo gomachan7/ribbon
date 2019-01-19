@@ -80,15 +80,16 @@ export class FriendsTransitionScene extends Phaser.Scene {
           }
         },
         {
-          targets: Phaser.Utils.NOOP,
-          duration: stopTime,
-          onStart: () => {
+          targets: container, // dummy target
+          alpha: 1.0,
+          duration: this.intervalMs,
+          offset: this.halfDuration,
+          onComplete: () => {
             this.scene.transition({
               target: this.targetScene,
               duration: this.halfDuration
             });
-          },
-          offset: this.halfDuration + this.intervalMs
+          }
         },
         {
           targets: pinkContainer,
