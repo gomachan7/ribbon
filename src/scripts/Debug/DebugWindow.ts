@@ -12,6 +12,10 @@ export class DebugWindow {
     this.game = game;
 
     this.datGUI = new dat.GUI();
+    this.datGUI.width = 300;
+    this.datGUI.useLocalStorage = true;
+    this.datGUI.remember(this);
+
     const basicFolder = this.datGUI.addFolder('Basic');
     basicFolder
       .add(this, 'sceneName', [
@@ -35,6 +39,10 @@ export class DebugWindow {
         }, ${v})`;
       });
     basicFolder.open();
+
+    // Resotre saved parameters
+    this.datGUI.revert(this.datGUI);
+    this.datGUI.close();
   }
 
   get GUI(): dat.GUI {
